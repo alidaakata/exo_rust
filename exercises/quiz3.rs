@@ -18,16 +18,35 @@
 
 // I AM NOT DONE
 
-pub struct ReportCard {
-    pub grade: f32,
+pub struct ReportCard<G> {
+    pub grade: G,
     pub student_name: String,
     pub student_age: u8,
 }
 
-impl ReportCard {
+pub trait Grade {
+    fn as_str(&self) -> &str;
+}
+
+impl Grade for f32 {
+    fn as_str(&self) -> &str {
+        &self.to_string()
+    }
+}
+
+impl<'a> Grade for &'a str {
+    fn as_str(&self) -> &str {
+        self
+    }
+}
+
+impl<G> ReportCard<G>
+where
+    G: Grade,
+{
     pub fn print(&self) -> String {
         format!("{} ({}) - achieved a grade of {}",
-            &self.student_name, &self.student_age, &self.grade)
+            &self.student_name, &self.student_age, self.grade.as_str())
     }
 }
 
@@ -65,5 +84,5 @@ mod tests {
 fn main (){}
 ///explication
 /// Le problème réside dans le fait que la structure `ReportCard` ne prend actuellement en charge que les notes numériques, représentées par des nombres à virgule flottante (`f32`). Cependant, l'école émet également des notes alphabétiques (par exemple, "A+" à "F-") et doit être capable d'imprimer les deux types de bulletins !
-/// La solution consiste à rendre la structure `ReportCard` générique en utilisant des types associés pour la note. De cette façon, la structure peut prendre en charge à la fois les notes numériques et alphabétiques.
+///Pour prendre en charge les notes numériques et alphabétiques, nous allons utiliser les génériques et les traits de Rust. Nous allons créer un trait Grade qui sera implémenté pour les types f32 et &str, ce qui nous permettra de stocker soit des notes numériques soit des notes alphabétiques dans la structure ReportCard
 /// Nous avons choisie cette solution car elle permet une extension facile pour prendre en charge d'autres types de notes à l'avenir, tout en maintenant la flexibilité et la lisibilité du code.
